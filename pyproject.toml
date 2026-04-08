@@ -1,7 +1,7 @@
 [project]
 name = "distributed-asr-serving"
 version = "0.1.0"
-requires-python = ">=3.13"
+requires-python = ">=3.10"
 dependencies = [
     "tqdm>=4.67.3",
     "transformers>=5.5.0",
