@@ -28,14 +28,23 @@ def transcribe(audio_file: UploadFile):
     These transcripts are then combindes and returned back to the user."""
 
     audio, sampling_rate = librosa.load(audio_file.file, sr=16000)
+    samples_per_segment = 29
+    chunk_size = int(samples_per_segment * sampling_rate)
 
-    input_features = processor(audio, sampling_rate=sampling_rate, return_tensors="pt").input_features
+    combined_transcript = ""
 
-    predicted_ids = model.generate(input_features)
+    for i in range(0, len(audio), chunk_size):
 
-    transcription = processor.batch_decode(predicted_ids, skip_special_tokens=True)
+        chunk = audio[i:i + chunk_size]
+
+        input_features = processor(chunk, sampling_rate=sampling_rate, return_tensors="pt").input_features
+        predicted_ids = model.generate(input_features)
+
+        transcription = processor.batch_decode(predicted_ids, skip_special_tokens=True)
+
+        combined_transcript = combined_transcript + " " + transcription[0]
 
     return {
         "filename": audio_file.filename,
-        "transcript": transcription[0]
+        "transcript": combined_transcript
         }
