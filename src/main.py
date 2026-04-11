@@ -2,23 +2,24 @@ from fastapi import FastAPI, UploadFile
 from transformers import AutoProcessor, AutoModelForSpeechSeq2Seq
 import librosa
 from dotenv import load_dotenv
+import config
 
 load_dotenv()
 
-processor = AutoProcessor.from_pretrained("openai/whisper-base", cache_dir="./models/")
-model = AutoModelForSpeechSeq2Seq.from_pretrained("openai/whisper-base", cache_dir="./models/")
+processor = AutoProcessor.from_pretrained(config.MODEL_NAME, cache_dir=config.CACHE_DIR)
+model = AutoModelForSpeechSeq2Seq.from_pretrained(config.MODEL_NAME, cache_dir=config.CACHE_DIR)
 
 app = FastAPI()
 
 
-@app.get('/models')
+@app.get('/model')
 def available_models():
     """Returns a list of available models for performing transcription."""
 
-    models = ["openai/whisper-base"]
+    model_name = config.MODEL_NAME
 
     return {
-        "AvailableModels": models
+        "AvailableModels": model_name
         }
 
 
@@ -27,8 +28,8 @@ def transcribe(audio_file: UploadFile):
     """Splits the input audio_file into batches of 30s which are then transcribed using the whisper model. 
     These transcripts are then combindes and returned back to the user."""
 
-    audio, sampling_rate = librosa.load(audio_file.file, sr=16000)
-    samples_per_segment = 29
+    audio, sampling_rate = librosa.load(audio_file.file, sr=config.SAMPLING_RATE)
+    samples_per_segment = config.AUDIO_CHUNK_SIZE
     chunk_size = int(samples_per_segment * sampling_rate)
 
     combined_transcript = ""
