@@ -2,3 +2,5 @@
 .env
 data/
 models/
+personal_logs.md
+__pycache__/
